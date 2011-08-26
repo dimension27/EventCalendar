@@ -40,8 +40,11 @@ class iCal {
                  
             } 
             foreach (array ("DESCRIPTION", "SUMMARY", "LOCATION") as $key) {
+              if( isset($majorarray[$key]) ) {
                 $majorarray[$key] = str_replace(array('\\\\', '\\,', '\\;', '\\n', '\\N'), 
-                                                array('\\',   ',',   ';',   "\n",  "\n"), $majorarray[$key]);
+                  array('\\',   ',',   ';',   "\n",  "\n"), $majorarray[$key]);
+              }
+              else $majorarray[$key] = '';
             }
 
             $icalarray[] = $majorarray; 
