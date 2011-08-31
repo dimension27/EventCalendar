@@ -136,14 +136,8 @@ class ICSWriter
      * @author Alex Hayes <alex.hayes@dimension27.com>
      */
 	protected function getFormatedDateTime( Date $date = null, Time $time = null ) {
-		$timestamp = null;
-		if($date && $time) {
-			$timestamp = strtotime($date . ' ' . $time);
-		}
-		else {
-			$timestamp = time();
-		}
-		return gmdate('Ymd\THis\Z', $timestamp);
+		$timestamp = ($date ? strtotime($date . ($time ? ' ' . $time : '')) : time());
+		return ((!$date || $time) ? gmdate('Ymd\THis\Z', $timestamp) : date('Ymd', $timestamp));
 	}
     
 	/**
@@ -155,14 +149,27 @@ class ICSWriter
 	 * @author Alex Hayes <alex.hayes@dimension27.com>
 	 */
     protected function addDateTime( CalendarDateTime $dateTime ) {
-    	$this->addLine('BEGIN:VEVENT');
-		$this->addLine('UID:' . $this->getUID($dateTime) );
-		$this->addLine('DTSTAMP;TZID=' . Calendar::$timezone . ':' . $this->getFormatedDateTime());
-		$this->addLine('DTSTART;TZID=' . Calendar::$timezone . ':' . $this->getFormatedDateTime($dateTime->StartDate, $dateTime->StartTime));
-		$this->addLine('DTEND;TZID='   . Calendar::$timezone . ':' . $this->getFormatedDateTime($dateTime->StartDate, $dateTime->StartTime));
-		$this->addLine('URL:' . Director::absoluteURL($dateTime->ICSLink()));
-		$this->addLine('SUMMARY:CHARSET=UTF-8:' . $dateTime->Event()->Title);
-		$this->addLine('END:VEVENT');
+		if( $dateTime->StartDate ) {
+			$startTime = ($dateTime->is_all_day ? null : $dateTime->StartTime);
+			$endTime = ($dateTime->is_all_day ? null : $dateTime->EndTime);
+			$endDate = $dateTime->EndDate;
+			if( !$endDate ) $endDate = $dateTime->StartDate;
+			if( $dateTime->is_all_day && $endDate == $dateTime->StartDate ) $endDate = date('Y-m-d', strtotime($endDate . ' +1 day'));
+			if( $startTime && !$endTime ) {
+				if( $dateTime->StartDate != $endDate ) {
+					$endDate = date('Y-m-d', strtotime($endDate . ' -1 day'));
+				}
+				$endTime = '23:59:59';
+			}
+	    	$this->addLine('BEGIN:VEVENT');
+			$this->addLine('UID:' . $this->getUID($dateTime) );
+			$this->addLine('DTSTAMP;TZID=' . Calendar::$timezone . ':' . $this->getFormatedDateTime());
+			$this->addLine('DTSTART;TZID=' . Calendar::$timezone . ':' . $this->getFormatedDateTime($dateTime->StartDate, $startTime));
+			$this->addLine('DTEND;TZID='   . Calendar::$timezone . ':' . $this->getFormatedDateTime($endDate, $endTime));
+			$this->addLine('URL:' . Director::absoluteURL($dateTime->ICSLink()));
+			$this->addLine('SUMMARY:' . $dateTime->Event()->Title);
+			$this->addLine('END:VEVENT');
+		}
     }
     
 }
