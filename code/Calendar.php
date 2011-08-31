@@ -343,6 +343,7 @@ class Calendar extends Page
 							$new_date->StartTime = $start_time;
 							$new_date->EndDate = $end_date;
 							$new_date->EndTime = $end_time;
+							$new_date->is_all_day = (!$new_date->StartTime && !$new_date->EndTime) ? true : false;
 							if(isset($event['DESCRIPTION']) && !empty($event['DESCRIPTION']))
 								$new_date->Content = $event['DESCRIPTION'];
 							if(isset($event['SUMMARY']) && !empty($event['SUMMARY']))
