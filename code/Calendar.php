@@ -347,7 +347,7 @@ class Calendar extends Page
 							if(isset($event['DESCRIPTION']) && !empty($event['DESCRIPTION']))
 								$new_date->Content = $event['DESCRIPTION'];
 							if(isset($event['SUMMARY']) && !empty($event['SUMMARY']))
-								$new_date->Event()->Title = $event['SUMMARY'];
+								$new_date->Title = $new_date->Event()->Title = $event['SUMMARY'];
 							$new_date->CalendarID = $this->ID;
 							$new_date->ID = "feed" . self::$recurring_event_index;
 							$new_date->Feed = true;
